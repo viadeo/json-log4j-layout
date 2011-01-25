@@ -15,7 +15,7 @@ public class JSONLayoutTest extends TestCase {
         LoggingEvent loggingEvent = new LoggingEvent("", Logger.getLogger("org.elasticsearch"), Level.INFO, "Hello World", new Exception());
 
         JSONLayout jsonLayout = new JSONLayout();
-        jsonLayout.setMdcsToUse("UserId,ProjectId");
+        jsonLayout.setMdcKeys("UserId,ProjectId");
         jsonLayout.activateOptions();
 
 
