@@ -98,7 +98,7 @@ public class JSONLayout extends Layout {
     }
 
     public void setMdcKeys(String...mdcKeystoUse) {
-        if (this.mdcKeys != null || this.mdcKeys.length > 0){
+        if (this.mdcKeys != null && this.mdcKeys.length > 0){
             this.mdcKeys = mdcKeystoUse;
         }
     }
