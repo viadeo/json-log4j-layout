@@ -18,10 +18,6 @@ public class JSONLayout extends Layout {
         jsonFactory = new JsonFactory();
     }
 
-    public JSONLayout(JsonFactory jsonFactory) {
-        this.jsonFactory = jsonFactory;
-    }
-
     @Override
     public String format(LoggingEvent event) {
         try {
@@ -90,15 +86,11 @@ public class JSONLayout extends Layout {
     }
 
     public String[] getMdcKeys() {
-
-        if(mdcKeys == null){
-            return new String[0];
-        }
         return Arrays.copyOf(mdcKeys, mdcKeys.length);
     }
 
     public void setMdcKeys(String...mdcKeystoUse) {
-        if (this.mdcKeys != null && this.mdcKeys.length > 0){
+        if (mdcKeystoUse != null && mdcKeystoUse.length > 0){
             this.mdcKeys = mdcKeystoUse;
         }
     }
@@ -110,6 +102,5 @@ public class JSONLayout extends Layout {
 
     @Override
     public void activateOptions() {
-        //A dummy placeholder
     }
 }

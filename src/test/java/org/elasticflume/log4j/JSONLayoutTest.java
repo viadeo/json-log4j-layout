@@ -13,6 +13,7 @@ import java.util.Set;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.MDC;
+import org.apache.log4j.NDC;
 import org.apache.log4j.spi.LoggingEvent;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,11 +32,11 @@ public class JSONLayoutTest {
     public void validateBasicLogStructure() {
         LoggingEvent event = createDefaultLoggingEvent();
         String logOutput = jsonLayout.format(event);
-        matchBasicLogOutput(logOutput, event);
+        validateBasicLogOutput(logOutput, event);
     }
 
     @Test
-    public void MDCValueIsLoggedCorrectly() {
+    public void validateMDCValueIsLoggedCorrectly() {
 
         Map<String, String> mdcMap = createMapAndPopulateMDC();
         Set<String> mdcKeySet = mdcMap.keySet();
@@ -44,35 +45,38 @@ public class JSONLayoutTest {
         jsonLayout.setMdcKeys(mdcKeySet.toArray(new String[0]));
         String logOutput = jsonLayout.format(event);
 
-        matchBasicLogOutput(logOutput, event);
+        validateBasicLogOutput(logOutput, event);
         assertThat(jsonLayout.getMdcKeys().length, is(mdcKeySet.size()));
         for (String key : mdcKeySet) {
             assertThat(jsonLayout.getMdcKeys(), hasItemInArray(key));
-//        System.out.println(logOutput);
         }
         validateMDCValues(logOutput);
     }
 
-    private void matchBasicLogOutput(String logOutput, LoggingEvent event) {
+    @Test
+    public void validateNDCValueIsLoggedCorrectly() {
+        populateNDC();
+        LoggingEvent event = createDefaultLoggingEvent();
+        String logOutput = jsonLayout.format(event);
+
+        validateBasicLogOutput(logOutput, event);
+        assertThat(NDC.getDepth(), is(2));
+        validateNDCValues(logOutput);
+    }
+
+
+    @Test
+    public void validateExceptionIsLoggedCorrectly() {
+        LoggingEvent event = createDefaultLoggingEventWithException();
+        String logOutput = jsonLayout.format(event);
+        validateExceptionInlogOutput(logOutput);
+    }
+
+    private void validateBasicLogOutput(String logOutput, LoggingEvent event) {
         validateLevel(logOutput, event);
         validateLogger(logOutput, event);
         validateThreadName(logOutput, event);
         validateMessage(logOutput, event);
-    }
-
-    private LoggingEvent createDefaultLoggingEvent() {
-        return new LoggingEvent("", DEFAULT_LOGGER, Level.INFO, "Hello World", null);
-    }
-
-    private Map<String, String> createMapAndPopulateMDC() {
-        Map<String,String> mdcMap = new LinkedHashMap<String,String>();
-        mdcMap.put("UserId", "U1");
-        mdcMap.put("ProjectId", "P1");
-
-        for(Map.Entry<String,String> entry: mdcMap.entrySet()){
-            MDC.put(entry.getKey(),entry.getValue());
-        }
-        return mdcMap;
     }
 
     private void validateLevel(String logOutput, LoggingEvent event) {
@@ -119,4 +123,38 @@ public class JSONLayoutTest {
         assertThat(logOutput, containsString(partialOutput));
     }
 
+    private void validateNDCValues(String logOutput) {
+        String partialOutput = "\"NDC\":";
+        partialOutput += "\"NDC1 NDC2\"";
+        assertThat(logOutput, containsString(partialOutput));
+    }
+
+    private void validateExceptionInlogOutput(String logOutput) {
+        String partialOutput = "\"throwable\":\"java.lang.IllegalArgumentException: Test Exception in event";
+        assertThat(logOutput, containsString(partialOutput));
+    }
+
+    private LoggingEvent createDefaultLoggingEvent() {
+        return new LoggingEvent("", DEFAULT_LOGGER, Level.INFO, "Hello World", null);
+    }
+
+    private LoggingEvent createDefaultLoggingEventWithException() {
+        return new LoggingEvent("", DEFAULT_LOGGER, Level.INFO, "Hello World", new IllegalArgumentException("Test Exception in event"));
+    }
+
+    private Map<String, String> createMapAndPopulateMDC() {
+        Map<String, String> mdcMap = new LinkedHashMap<String, String>();
+        mdcMap.put("UserId", "U1");
+        mdcMap.put("ProjectId", "P1");
+
+        for (Map.Entry<String, String> entry : mdcMap.entrySet()) {
+            MDC.put(entry.getKey(), entry.getValue());
+        }
+        return mdcMap;
+    }
+
+    private void populateNDC() {
+        NDC.push("NDC1");
+        NDC.push("NDC2");
+    }
 }
