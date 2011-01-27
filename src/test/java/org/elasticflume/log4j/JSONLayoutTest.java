@@ -6,7 +6,9 @@ import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -116,22 +118,28 @@ public class JSONLayoutTest {
     }
 
     private void validateMDCValues(String logOutput) {
-        String partialOutput = "\"MDC\":{";
-        partialOutput += "\"UserId\":\"" + "U1" + "\",";
-        partialOutput += "\"ProjectId\":\"" + "P1" + "\"";
-        partialOutput += "}";
+        String partialOutput = "\"MDC\":{\"UserId\":\"" + "U1" + "\",\"ProjectId\":\"" + "P1" + "\"}";
         assertThat(logOutput, containsString(partialOutput));
     }
 
     private void validateNDCValues(String logOutput) {
-        String partialOutput = "\"NDC\":";
-        partialOutput += "\"NDC1 NDC2\"";
+        String partialOutput = "\"NDC\":\"NDC1 NDC2\"";
         assertThat(logOutput, containsString(partialOutput));
     }
 
     private void validateExceptionInlogOutput(String logOutput) {
-        String partialOutput = "\"throwable\":\"java.lang.IllegalArgumentException: Test Exception in event";
-        assertThat(logOutput, containsString(partialOutput));
+        List<String> partialOutput = new ArrayList<String>();
+        partialOutput.add("\"throwable\":\"java.lang.IllegalArgumentException: Test Exception in event");
+        partialOutput.add("org.elasticflume.log4j.JSONLayoutTest.createDefaultLoggingEventWithException(JSONLayoutTest.java:");
+        partialOutput.add("at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)");
+        partialOutput.add("at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39");
+        partialOutput.add("at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)");
+        partialOutput.add("at java.lang.reflect.Method.invoke(Method.java:597)");
+
+        for (String output : partialOutput)
+        {
+            assertThat(logOutput, containsString(output));
+        }
     }
 
     private LoggingEvent createDefaultLoggingEvent() {
