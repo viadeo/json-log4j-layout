@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -66,7 +67,6 @@ public class JSONLayoutTest {
         validateNDCValues(logOutput);
     }
 
-
     @Test
     public void validateExceptionIsLoggedCorrectly() {
         LoggingEvent event = createDefaultLoggingEventWithException();
@@ -79,6 +79,12 @@ public class JSONLayoutTest {
         validateLogger(logOutput, event);
         validateThreadName(logOutput, event);
         validateMessage(logOutput, event);
+        validateNewLine(logOutput, event);
+
+    }
+
+    private void validateNewLine(String logOutput, LoggingEvent event) {
+        assertTrue("every line in a log must end with a new line character",logOutput.endsWith("\n"));
     }
 
     private void validateLevel(String logOutput, LoggingEvent event) {
