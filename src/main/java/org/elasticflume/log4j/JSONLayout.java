@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Layout;
 import org.apache.log4j.spi.LoggingEvent;
 import org.codehaus.jackson.JsonFactory;
@@ -89,9 +90,9 @@ public class JSONLayout extends Layout {
         return Arrays.copyOf(mdcKeys, mdcKeys.length);
     }
 
-    public void setMdcKeys(String...mdcKeystoUse) {
-        if (mdcKeystoUse != null && mdcKeystoUse.length > 0){
-            this.mdcKeys = mdcKeystoUse;
+    public void setMdcKeysToUse(String mdcKeystoUse){
+        if (StringUtils.isNotBlank(mdcKeystoUse)){
+            this.mdcKeys = mdcKeystoUse.split(",");
         }
     }
 

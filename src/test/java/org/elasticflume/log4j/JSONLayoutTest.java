@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Joiner;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.MDC;
@@ -32,6 +33,27 @@ public class JSONLayoutTest {
     }
 
     @Test
+    public void validateMDCKeys(){
+        jsonLayout.setMdcKeysToUse("UserID,RequestID,IPAddress");
+        String[] mdckeys = jsonLayout.getMdcKeys();
+        assertThat(mdckeys.length, is(3));
+        assertThat(mdckeys[0],is("UserID"));
+        assertThat(mdckeys[1],is("RequestID"));
+        assertThat(mdckeys[2],is("IPAddress"));
+    }
+
+    @Test
+    public void emptyMDCStringShouldResultInEmptyArray(){
+        jsonLayout.setMdcKeysToUse("");
+        String[] mdckeys = jsonLayout.getMdcKeys();
+        assertThat(mdckeys.length, is(0));
+
+        jsonLayout.setMdcKeysToUse(null);
+        mdckeys = jsonLayout.getMdcKeys();
+        assertThat(mdckeys.length, is(0));
+    }
+
+    @Test
     public void validateBasicLogStructure() {
         LoggingEvent event = createDefaultLoggingEvent();
         String logOutput = jsonLayout.format(event);
@@ -45,7 +67,7 @@ public class JSONLayoutTest {
         Set<String> mdcKeySet = mdcMap.keySet();
 
         LoggingEvent event = createDefaultLoggingEvent();
-        jsonLayout.setMdcKeys(mdcKeySet.toArray(new String[0]));
+        jsonLayout.setMdcKeysToUse(Joiner.on(",").join(mdcKeySet));
         String logOutput = jsonLayout.format(event);
 
         validateBasicLogOutput(logOutput, event);
