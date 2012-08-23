@@ -3,7 +3,9 @@ package org.elasticflume.log4j;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
-
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Layout;
 import org.apache.log4j.spi.LoggingEvent;
@@ -33,7 +35,7 @@ public class JSONLayout extends Layout {
             g.close();
             stringWriter.append("\n");
             return stringWriter.toString();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new JSONLayoutException(e);
         }
     }
@@ -43,9 +45,13 @@ public class JSONLayout extends Layout {
         return g;
     }
 
-    private void writeBasicFields(LoggingEvent event, JsonGenerator g) throws IOException {
+    private void writeBasicFields(LoggingEvent event, JsonGenerator g) throws Exception {
         g.writeStringField("logger", event.getLoggerName());
         g.writeStringField("level", event.getLevel().toString());
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        Date date = new Date(event.timeStamp);
+        //Date date = format.parse(String.valueOf(event.timeStamp/1000));
+        g.writeStringField("date", format.format(date));
         g.writeNumberField("timestamp", event.timeStamp);
         g.writeStringField("threadName", event.getThreadName());
         g.writeStringField("message", event.getMessage().toString());
