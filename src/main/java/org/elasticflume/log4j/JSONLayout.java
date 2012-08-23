@@ -48,9 +48,8 @@ public class JSONLayout extends Layout {
     private void writeBasicFields(LoggingEvent event, JsonGenerator g) throws Exception {
         g.writeStringField("logger", event.getLoggerName());
         g.writeStringField("level", event.getLevel().toString());
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date(event.timeStamp);
-        //Date date = format.parse(String.valueOf(event.timeStamp/1000));
         g.writeStringField("date", format.format(date));
         g.writeNumberField("timestamp", event.timeStamp);
         g.writeStringField("threadName", event.getThreadName());
